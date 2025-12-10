@@ -16,7 +16,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// ì˙ñ{åÍ (ì˙ñ{) resources
+// ÔøΩÔøΩÔøΩ{ÔøΩÔøΩ (ÔøΩÔøΩÔøΩ{) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_JPN)
 LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
@@ -102,6 +102,7 @@ BEGIN
         MENUITEM "Install/Uninstall Package(&I)...",   IDM_HSP3UPDATE
         MENUITEM "Options(&O)...",              IDM_OPTION
         MENUITEM SEPARATOR
+        MENUITEM "Convert Referenced Files to UTF-8(&U)...", IDM_CONVERT_U8INCLUDE
     END
     POPUP "ExtTool(&X)"
     BEGIN
@@ -513,8 +514,8 @@ BEGIN
     PUSHBUTTON      "Add...",IDC_BUTTON1,231,0,35,14
     PUSHBUTTON      "Edit...",IDC_BUTTON2,231,20,35,14
     PUSHBUTTON      "Del",IDC_BUTTON3,231,40,35,14
-    PUSHBUTTON      "Å™",IDC_MOVE_UP,231,60,35,14
-    PUSHBUTTON      "Å´",IDC_MOVE_DOWN,231,80,35,14
+    PUSHBUTTON      "ÔøΩÔøΩ",IDC_MOVE_UP,231,60,35,14
+    PUSHBUTTON      "ÔøΩÔøΩ",IDC_MOVE_DOWN,231,80,35,14
 END
 
 PP_BEHAVIOR DIALOGEX 0, 0, 266, 190
@@ -536,7 +537,7 @@ BEGIN
     GROUPBOX        "Misc Settings",IDC_STATIC,0,109,206,70
     LTEXT           "Auto Backup",IDC_STATIC,7,122,112,8
     EDITTEXT        IDC_EDIT1,7,134,40,15,ES_AUTOHSCROLL | ES_NUMBER,WS_EX_RIGHT
-    LTEXT           "Per SecondsÅi0 is NoneÅj",IDC_STATIC,51,137,68,10
+    LTEXT           "Per SecondsÔøΩi0 is NoneÔøΩj",IDC_STATIC,51,137,68,10
     CONTROL         "Save backup files when resume",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,152,179,10
     LTEXT           "* You will need restart to change",IDC_STATIC,3,182,181,8
     CONTROL         "Notice Backup",IDC_CHECK4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,122,136,71,10
@@ -864,7 +865,7 @@ BEGIN
     END
 END
 
-#endif    // ì˙ñ{åÍ (ì˙ñ{) resources
+#endif    // ÔøΩÔøΩÔøΩ{ÔøΩÔøΩ (ÔøΩÔøΩÔøΩ{) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

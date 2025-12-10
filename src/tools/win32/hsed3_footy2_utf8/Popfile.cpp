@@ -228,7 +228,8 @@ BOOL PopFileRead (int nFootyID, PSTR pstrFileName)
 //
 //     return TRUE ;
 		int nRet;
-		nRet = Footy2TextFromFile(nFootyID, pstrFileName, CSM_PLATFORM);
+		// 自動判定モードで読み込み（UTF-8/Shift-JIS両対応）
+	     nRet = Footy2TextFromFile(nFootyID, pstrFileName, CSM_AUTOMATIC);
 		if( FOOTY2ERR_NONE != nRet ) {
 			return FALSE;
 		}
@@ -271,7 +272,8 @@ BOOL PopFileWrite (int FootyID, PSTR pstrFileName)
 //
 //     return TRUE ;
 		int nRet;
-		nRet = Footy2SaveToFile(FootyID, pstrFileName, CSM_AUTOMATIC, LM_AUTOMATIC);
+		// UTF-8（BOMなし）で保存
+	     nRet = Footy2SaveToFile(FootyID, pstrFileName, CSM_UTF8, LM_AUTOMATIC);
 		if( FOOTY2ERR_NONE != nRet ) {
 			return FALSE;
 		}

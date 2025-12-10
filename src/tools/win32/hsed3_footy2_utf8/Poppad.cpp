@@ -51,6 +51,9 @@
 */
 //extern int  flag_xpstyle;
 int getUnicodeOffset( char *text, int offset );
+// UTF-8 conversion function (from convert_utf8.cpp)
+extern int ConvertFolderToUTF8(const char* dirPath, char* resultMessage, int msgBufSize);
+void CopyDirectoryRecursive(const char* sourceDir, const char* destDir);
 
 
 /*
@@ -63,6 +66,7 @@ DLLFUNC hsc_ini;
 DLLFUNC hsc_refname;
 DLLFUNC hsc_objname;
 DLLFUNC hsc_comp;
+DLLFUNC hsc_compath;
 DLLFUNC hsc_getmes;
 DLLFUNC hsc_clrmes;
 DLLFUNC hsc_ver;
@@ -119,6 +123,7 @@ int dll_ini( char *libname )
 	hsc_refname = (DLLFUNC)SetDllFunc("hsc_refname");
 	hsc_objname = (DLLFUNC)SetDllFunc("hsc_objname");
 	hsc_comp = (DLLFUNC)SetDllFunc("hsc_comp");
+	hsc_compath = (DLLFUNC)SetDllFunc("hsc_compath");
 	hsc_getmes = (DLLFUNC)SetDllFunc("hsc_getmes");
 	hsc_clrmes = (DLLFUNC)SetDllFunc("hsc_clrmes");
 	hsc_ver = (DLLFUNC)SetDllFunc("hsc_ver");
@@ -155,6 +160,19 @@ void dll_bye( void )
 	}
 	FreeLibrary( hDLL );
 	dllflg=0;
+}
+
+void SetupCompilerForUTF8( void )
+{
+	//		UTF-8版用のコンパイラー初期化
+	//		u8common\をcommon pathとして設定
+	//
+	char u8path[_MAX_PATH];
+	GetModuleFileName(NULL, u8path, _MAX_PATH);
+	char *p = strrchr(u8path, '\\');
+	if (p) *(p+1) = 0;
+	strcat(u8path, "u8common\\");
+	hsc_compath(0, (int)u8path, 0, 0);
 }
 
 
@@ -2708,11 +2726,13 @@ LRESULT CALLBACK EditProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 					PopFileWrite ( activeFootyID, HSPTMP);
 					strcpy(tmpfn, HSPTMP);
 					hsc_ini( 0,(int)tmpfn, 0,0 );
+					SetupCompilerForUTF8();
 					myfile();
 					hsc_refname( 0,(int)compfile, 0,0 );
 					strcpy( objname, HSPOBJ);
 					hsc_objname( 0,(int)objname, 0,0 );
-					a=hsc_comp( 1, 0, hsp_debug, 0 );
+					// UTF-8入力モードを有効化（第2引数に32を追加）
+					a=hsc_comp( 1, 32, hsp_debug, 0 );
 					if (a) {
 						err_prt(hwnd);
 						return 0;
@@ -2720,6 +2740,7 @@ LRESULT CALLBACK EditProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 					if (LOWORD (wParam)==IDM_COMP2) {
 						err_prt(hwnd);
 						return 0;
+					SetupCompilerForUTF8();
 					}	
 					if (LOWORD (wParam)==IDM_LOGCOMP) {
 						DialogBox (hInst, "Logcomp", hwnd, (DLGPROC)LogcompDlgProc );
@@ -2742,8 +2763,10 @@ LRESULT CALLBACK EditProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 						strcat( objname,".ax" );
 						strcat( hsp_extstr,".hsp" );
 						hsc_ini( 0,(int)hsp_extstr, 0,0 );
+						SetupCompilerForUTF8();
 						hsc_objname( 0,(int)objname, 0,0 );
-						a=hsc_comp( 0,0,0,0 );
+						// UTF-8入力モードを有効化（第2引数に32を追加）
+					a=hsc_comp( 0,32,0,0 );
 						//a=tcomp_main( hsp_extstr, hsp_extstr, objname, errbuf,0 );
 						if (a) { err_prt(hwnd);return 0; }
 #ifdef JPNMSG
@@ -2756,8 +2779,10 @@ LRESULT CALLBACK EditProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 					strcpy( objname, HSPOBJ);
 					strcat( hsp_extstr,".hsp" );
 					hsc_ini( 0,(int)hsp_extstr, 0,0 );
+					SetupCompilerForUTF8();
 					hsc_objname( 0,(int)objname, 0,0 );
-					a=hsc_comp( 1, 0, hsp_debug, 0 );
+					// UTF-8入力モードを有効化（第2引数に32を追加）
+					a=hsc_comp( 1, 32, hsp_debug, 0 );
 					//a=tcomp_main( hsp_extstr, hsp_extstr, objname, errbuf,1 );
 					if (a) { err_prt(hwnd);return 0; }
 					if (hsp_clmode==0) { hsprun(objname); } else { hsprun_cl(objname); }
@@ -2770,6 +2795,7 @@ LRESULT CALLBACK EditProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 				case IDM_HSPSYM:
 					strcpy(tmpfn, HSPTMP);
 					hsc_ini( 0,(int)tmpfn, 0,0 );
+					SetupCompilerForUTF8();
 					myfile();
 					hsc_refname( 0,(int)compfile, 0,0 );
 					strcpy( objname, HSPOBJ);
@@ -2797,6 +2823,87 @@ LRESULT CALLBACK EditProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 					hsp_debug^=1;
 					return 0;
 
+				case IDM_CONVERT_U8INCLUDE:
+					{
+						// Get current file directory
+						char currentDir[_MAX_PATH] = "";
+						char exeDir[_MAX_PATH] = "";
+						char resultMsg[2048] = "";
+						int convertCount = 0;
+						
+						// Get directory of active file
+						TABINFO *pTabInfo = GetTabInfo(activeFootyID);
+						if (pTabInfo && pTabInfo->FileName[0] != '\0') {
+							char fullPath[_MAX_PATH];
+							GetFullPathName(pTabInfo->FileName, _MAX_PATH, fullPath, NULL);
+							strcpy(currentDir, fullPath);
+							char *p = strrchr(currentDir, '\\');
+							if (p) *p = '\0';
+						}
+						if (currentDir[0] == '\0') {
+							MessageBox(hwnd, "ファイルが開かれていません。まずファイルを開いてください。", "UTF-8 変換", MB_OK | MB_ICONWARNING);
+							return 0;
+						}
+						
+						// Confirm conversion
+						char confirmMsg[1024];
+						sprintf(confirmMsg, 
+							"すべてのHSPファイル (*.as, *.hsp) をUTF-8に変換しますか？\n\n"
+							"対象フォルダ:\n%s\n\n"
+							"- すべてのサブフォルダを含みます\n"
+							"- バックアップファイル (*.bak) が作成されます\n"
+							"- すでにUTF-8のファイルはスキップされます",
+							currentDir);
+						
+						if (MessageBox(hwnd, confirmMsg, "UTF-8 変換", MB_YESNO | MB_ICONQUESTION) != IDYES) {
+							return 0;
+						}
+						
+						// Convert current folder
+						ConvertFolderToUTF8(currentDir, resultMsg, sizeof(resultMsg));
+						
+						// Also convert u8common folder
+						GetModuleFileName(NULL, exeDir, _MAX_PATH);
+						char *p = strrchr(exeDir, '\\');
+						if (p) *(p+1) = '\0';
+						strcat(exeDir, "u8common");
+						
+						if (PathIsDirectory(exeDir)) {
+							char u8commonMsg[2048];
+							ConvertFolderToUTF8(exeDir, u8commonMsg, sizeof(u8commonMsg));
+							strcat(resultMsg, "\n\n--- u8common folder ---\n");
+							strcat(resultMsg, u8commonMsg);
+						}
+						else {
+							// copy common folder to u8common
+							char exePath[_MAX_PATH];
+							GetModuleFileName(NULL, exePath, _MAX_PATH);
+							char *p = strrchr(exePath, '\\');
+							if (p) *(p+1) = '\0';
+							
+							char commonDir[_MAX_PATH];
+							strcpy(commonDir, exePath);
+							strcat(commonDir, "common");
+							
+							if (PathIsDirectory(commonDir)) {
+								char u8commonDir[_MAX_PATH];
+								strcpy(u8commonDir, exePath);
+								strcat(u8commonDir, "u8common");
+								
+								CreateDirectory(u8commonDir, NULL);
+								CopyDirectoryRecursive(commonDir, u8commonDir);
+								
+								char u8commonMsg[2048];
+								ConvertFolderToUTF8(u8commonDir, u8commonMsg, sizeof(u8commonMsg));
+								strcat(resultMsg, "\n\n--- u8common folder ---\n");
+								strcat(resultMsg, u8commonMsg);
+							}
+						}
+						
+						// Show result
+						MessageBox(hwnd, resultMsg, "UTF-8 変換完了", MB_OK | MB_ICONINFORMATION);
+					}
+					return 0;
 				case IDM_CMDOPT:
 					DialogBox (hInst, "CmdBox", hwnd, (DLGPROC)OptDlgProc);
 					return 0;
@@ -5164,4 +5271,40 @@ int ExistBackupFile(char *backuppath){
 		return -1;
 	}
 	return res;
+}
+
+// Copy directory recursively
+void CopyDirectoryRecursive(const char* sourceDir, const char* destDir) {
+    CreateDirectory(destDir, NULL);
+
+    char searchPath[_MAX_PATH];
+    strcpy(searchPath, sourceDir);
+    strcat(searchPath, "\\*");
+
+    WIN32_FIND_DATA findData;
+    HANDLE hFind = FindFirstFile(searchPath, &findData);
+
+    if (hFind == INVALID_HANDLE_VALUE) return;
+
+    do {
+        if (strcmp(findData.cFileName, ".") == 0 || strcmp(findData.cFileName, "..") == 0) continue;
+
+        char sourcePath[_MAX_PATH];
+        strcpy(sourcePath, sourceDir);
+        strcat(sourcePath, "\\");
+        strcat(sourcePath, findData.cFileName);
+
+        char destPath[_MAX_PATH];
+        strcpy(destPath, destDir);
+        strcat(destPath, "\\");
+        strcat(destPath, findData.cFileName);
+
+        if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+            CopyDirectoryRecursive(sourcePath, destPath);
+        } else {
+            CopyFile(sourcePath, destPath, FALSE);
+        }
+    } while (FindNextFile(hFind, &findData));
+
+    FindClose(hFind);
 }

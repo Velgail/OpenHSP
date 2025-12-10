@@ -19,7 +19,7 @@
     <ProjectGuid>{A599DDBE-AF26-446B-A144-17BF357A4E60}</ProjectGuid>
     <RootNamespace>hsed</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -60,18 +60,21 @@
     <OutDir>Debug\</OutDir>
     <IntDir>Debug\</IntDir>
     <LinkIncremental>true</LinkIncremental>
+    <TargetName>$(ProjectName)3u8</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>Release\</OutDir>
     <IntDir>Release\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <GenerateManifest>false</GenerateManifest>
+    <TargetName>$(ProjectName)3u8</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='release_en|Win32'">
     <OutDir>Release_en\</OutDir>
     <IntDir>Release_en\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <GenerateManifest>false</GenerateManifest>
+    <TargetName>$(ProjectName)3u8</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -87,7 +90,7 @@
     <Link>
       <AdditionalOptions>/FORCE:MULTIPLE %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>comsuppw.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)hsed3.exe</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <IgnoreSpecificDefaultLibraries>libc.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)hsed.pdb</ProgramDatabaseFile>
@@ -113,7 +116,7 @@
     <Link>
       <AdditionalOptions>/FORCE:MULTIPLE %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>comsuppw.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)hsed3.exe</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <IgnoreSpecificDefaultLibraries>libc.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -142,7 +145,7 @@
     <Link>
       <AdditionalOptions>/FORCE:MULTIPLE %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>comsuppw.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)hsed3.exe</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <IgnoreSpecificDefaultLibraries>libc.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -177,6 +180,7 @@
     <ClCompile Include="tabmanager.cpp" />
     <ClCompile Include="toolbar.cpp" />
     <ClCompile Include="tooltip.cpp" />
+    <ClCompile Include="convert_utf8.cpp" />
     <ClCompile Include="vbsregexp.c" />
   </ItemGroup>
   <ItemGroup>

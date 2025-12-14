@@ -32,9 +32,9 @@
 #define DEFAULT_RUNTIME "hsp3.exe"   // HSP3 runtime
 #define HSP_VERSION 3
 #define REG_SUFFIX "3_3"                      // Suffix of registry section name 
-#define INI_FILE "hsed3config.ini"            // INI section name
-#define MUTEX_NAME  "HSPEditor3_Mutex"        // Name of Mutex object
-#define PROP_NAME   "HSPEditor3_Property"     // Name of Property list
+#define INI_FILE "hsed3u8config.ini"            // INI section name
+#define MUTEX_NAME  "HSPEditor3u8_Mutex"        // Name of Mutex object
+#define PROP_NAME   "HSPEditor3u8_Property"     // Name of Property list
 
 #else
 

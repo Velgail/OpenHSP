@@ -547,17 +547,17 @@ void DoCaption(char* szTitleName, int TabID)
 
 	if (GetTabInfo(0) == NULL) {
 #ifdef JPNMSG
-		lstrcpy(szCaption, "ＨＳＰスクリプトエディタ");
+		lstrcpy(szCaption, "ＨＳＰスクリプトエディタ(UTF-8)");
 #else
-		lstrcpy(szCaption, "HSP Script Editor");
+		lstrcpy(szCaption, "HSP Script Editor (UTF-8)");
 #endif
 	}
 	else {
 #ifdef JPNMSG
-		sprintf(szCaption, "ＨＳＰスクリプトエディタ - %s%s",
+		sprintf(szCaption, "ＨＳＰスクリプトエディタ(UTF-8) - %s%s",
 			szTitleName[0] ? szTitleName : UNTITLED, bNeedSave ? " *" : "");
 #else
-		sprintf(szCaption, "HSP Script Editor - %s%s",
+		sprintf(szCaption, "HSP Script Editor (UTF-8) - %s%s",
 			szTitleName[0] ? szTitleName : UNTITLED, bNeedSave ? " *" : "");
 #endif
 	}
